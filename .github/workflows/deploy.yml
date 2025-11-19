@@ -1,0 +1,46 @@
+name: Deploy Astro site to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]  # 如果你的主分支是 master，改成 ["master"]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 拉取代码
+      - uses: actions/checkout@v4
+
+      # 安装 Node 环境
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # 安装依赖
+      - name: Install dependencies
+        run: npm install
+
+      # 构建 Astro 项目
+      - name: Build
+        run: npm run build
+
+      # 上传构建产物 dist/ 到 GitHub Pages
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
